@@ -1,109 +1,18 @@
-import {
-    UserOutlined, LeftOutlined
-} from '@ant-design/icons';
-import config from "./config";
+import config from "../config";
 import { useState, useEffect } from 'react';
 import { Typography, Select, Flex, Layout, Divider, Spin } from 'antd';
-import { Preferences } from './Preferences';
-import { Link } from 'react-router-dom';
-import Topbar from './components/Topbar';
+import Topbar from '../components/Topbar';
+import { Preferences } from '../entities/Preferences';
 const { Title, Text } = Typography;
-const { Header, Content } = Layout;
+const { Content } = Layout;
 
-const headerStyle: React.CSSProperties = {
-    textAlign: 'center',
-    color: '#000000',
-    height: 64,
-    backgroundColor: '#fefeff',
-    fontFamily: 'Wix Madefor Display',
-    padding: 0,
-    paddingLeft: 30,
-    paddingRight: 30,
-    fontSize: 20,
-    fontWeight: 500,
-    letterSpacing: -0.5
-};
-
-import { openDB } from 'idb';
-
-const flushManualQueue = async () => {
-    try {
-        const db = await openDB('workbox-background-sync');
-        const queueName = "ismr-sync-queue";
-
-        if (!db.objectStoreNames.contains('requests')) return;
-
-        // 1. Just READ the data and close the transaction immediately
-        const allRequests = await db.getAll('requests');
-        const successfulIds = [];
-
-        console.log(`Found ${allRequests.length} pending requests.`);
-
-        // 2. Perform the Network loop OUTSIDE of a transaction
-        for (const entry of allRequests) {
-            if (entry.queueName === queueName) {
-                try {
-                    const requestData = entry.storableRequest?.requestData || entry.requestData;
-                    if (!requestData) continue;
-
-                    const response = await fetch(requestData.url, {
-                        method: requestData.method || 'PUT',
-                        headers: requestData.headers,
-                        body: requestData.body,
-                    });
-
-                    if (response.ok) {
-                        console.log(`✅ Success for entry ${entry.id}`);
-                        // Store the ID to delete it in a fresh transaction later
-                        successfulIds.push(entry.id);
-                    }
-                } catch (innerErr) {
-                    console.error("Replay failed for this entry:", innerErr);
-                }
-            }
-        }
-
-        // 3. Open a NEW, fresh transaction just for the DELETIONS
-        if (successfulIds.length > 0) {
-            const deleteTx = db.transaction('requests', 'readwrite');
-            const deleteStore = deleteTx.objectStore('requests');
-
-            for (const id of successfulIds) {
-                await deleteStore.delete(id);
-            }
-
-            await deleteTx.done;
-            console.log(`🧹 Successfully removed ${successfulIds.length} entries from IndexedDB.`);
-        }
-    } catch (err) {
-        console.error("Manual flush failed:", err);
-    }
-};
-function PreferencePage() {
+function Preference() {
 
     const [preferences, setPreferences] = useState(new Preferences());
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         getPreferences();
-
-        const handleOnline = async () => {
-            console.log("🟢 Back Online: Starting Manual Replay...");
-
-            // Give the browser 1 second to truly stabilize the socket
-            setTimeout(async () => {
-                await flushManualQueue();
-            }, 1000);
-        };
-
-        window.addEventListener('online', handleOnline);
-
-        // Check on mount in case they loaded the app while already back online
-        if (navigator.onLine) {
-            flushManualQueue();
-        }
-
-        return () => window.removeEventListener('online', handleOnline);
     }, []);
 
     async function getPreferences() {
@@ -216,5 +125,5 @@ function PreferencePage() {
     );
 }
 
-export default PreferencePage;
+export default Preference;
 

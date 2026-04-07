@@ -1,13 +1,33 @@
-import { Button, DatePicker, Space, ConfigProvider } from 'antd';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-import Home from "./Home";
-import PreferencePage from "./PreferencePage";
+import { useEffect } from 'react';
+import { ConfigProvider } from 'antd';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Home from "./pages/Home";
+import Preference from "./pages/Preference";
+import Register from "./pages/Register";
 import Install from './components/Install';
 import useOnlineStatus from './hooks/useOnlineStatus';
 import Offline from './components/Offline';
+import { flushManualQueue } from './utils/syncManager';
 
 function App() {
   const isOnline = useOnlineStatus();
+  useEffect(() => {
+    const handleOnline = () => {
+      // Delay slightly to ensure browser socket is fully stable
+      setTimeout(() => {
+        flushManualQueue();
+      }, 1500);
+    };
+
+    window.addEventListener('online', handleOnline);
+
+    // Run once on load to catch anything missed while the app was closed
+    if (navigator.onLine) {
+      flushManualQueue();
+    }
+
+    return () => window.removeEventListener('online', handleOnline);
+  }, []);
 
   return (
     <ConfigProvider
@@ -21,7 +41,8 @@ function App() {
         {true && (<div className="main">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/preferences" element={<PreferencePage />} />
+            <Route path="/preferences" element={<Preference />} />
+            <Route path="/register" element={<Register />} />
           </Routes>
           <Install />
         </div>)}

@@ -1,12 +1,12 @@
 import { motion } from 'framer-motion';
-import { Logo } from "./Logo";
-import { ActiveLogo } from "./ActiveLogo";
+import { Logo } from "../components/Logo";
+import { ActiveLogo } from "../components/ActiveLogo";
 import { useState } from 'react';
 import { Typography, Flex, Layout, Button } from 'antd';
-import Topbar from './components/Topbar';
+import Topbar from '../components/Topbar';
 const { Title } = Typography;
 const { Content } = Layout;
-import { useVibration } from './hooks/useVibration';
+import { useVibration } from '../hooks/useVibration';
 
 const layoutStyle: React.CSSProperties = {
     minHeight: '100vh',

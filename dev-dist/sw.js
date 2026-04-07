@@ -67,9 +67,8 @@ if (!self.define) {
     });
   };
 }
-define(['./workbox-137dedbd'], (function (workbox) { 'use strict';
+define(['./workbox-c02d82e0'], (function (workbox) { 'use strict';
 
-  importScripts("/push-notification-handler.js");
   self.skipWaiting();
   workbox.clientsClaim();
 
@@ -83,22 +82,32 @@ define(['./workbox-137dedbd'], (function (workbox) { 'use strict';
     "revision": "3ca0b8505b4bec776b69afdba2768812"
   }, {
     "url": "index.html",
-    "revision": "0.tee9lpef1gg"
+    "revision": "0.5j7nqpcfddg"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {
     allowlist: [/^\/$/]
   }));
-  workbox.registerRoute(/^https:\/\/ismr-engine-service.onrender.com*$/, new workbox.NetworkFirst({
+  workbox.registerRoute(({
+    url
+  }) => url.origin === "https://ismr-engine-service.onrender.com", new workbox.NetworkOnly({
     "cacheName": "ismr-api-cache",
-    "networkTimeoutSeconds": 5,
     plugins: [new workbox.ExpirationPlugin({
       maxEntries: 10,
       maxAgeSeconds: 86400
     }), new workbox.CacheableResponsePlugin({
       statuses: [0, 200]
+    }), new workbox.BackgroundSyncPlugin("ismr-sync-queue", {
+      maxRetentionTime: 1440
     })]
-  }), 'GET');
+  }), 'POST');
+  workbox.registerRoute(({
+    url
+  }) => url.origin === "https://ismr-engine-service.onrender.com", new workbox.NetworkOnly({
+    plugins: [new workbox.BackgroundSyncPlugin("ismr-sync-queue", {
+      maxRetentionTime: 1440
+    })]
+  }), 'PUT');
   workbox.registerRoute(/\.(?:png|jpg|svg)$/, new workbox.CacheFirst({
     "cacheName": "ismr-assets",
     plugins: []

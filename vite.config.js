@@ -17,14 +17,13 @@ export default defineConfig({
       strategy: 'generateSW',
       registerType: 'autoUpdate',
       workbox: {
-        importScripts: ['/push-notification-handler.js'],
         runtimeCaching: [
           {
             urlPattern: ({ url }) => url.origin === 'https://ismr-engine-service.onrender.com',
-            handler: 'NetworkFirst',
+            handler: 'NetworkOnly',
+            method: 'POST',
             options: {
               cacheName: 'ismr-api-cache',
-              networkTimeoutSeconds: 5,
               expiration: {
                 maxEntries: 10,
                 maxAgeSeconds: 24 * 60 * 60,
@@ -36,46 +35,19 @@ export default defineConfig({
                 name: 'ismr-sync-queue',
                 options: { maxRetentionTime: 24 * 60 },
               },
-              // Background Sync requires this for POST requests
-              plugins: [
-                {
-                  fetchDidFail: async ({ error }) => {
-                    console.log("Background Sync triggered due to fetch failure", error);
-                  }
-                }, {
-                  handlerDidError: async () => {
-                    console.log("Request failed, checking sync queue...");
-                    return null;
-                  }
-                }
-              ]
-            },
-            method: 'PUT'
+            }
           },
-          // {
-          //   urlPattern: ({ url }) => url.origin === 'https://ismr-engine-service.onrender.com',
-          //   handler: 'NetworkOnly', // Use NetworkOnly for data you want to SYNC later
-          //   options: {
-          //     backgroundSync: {
-          //       name: 'ismr-sync-queue',
-          //       options: { maxRetentionTime: 24 * 60 },
-          //     },
-          //     // Background Sync requires this for POST requests
-          //     plugins: [
-          //       {
-          //         fetchDidFail: async ({ error }) => {
-          //           console.log("Background Sync triggered due to fetch failure", error);
-          //         }
-          //       }, {
-          //         handlerDidError: async () => {
-          //           console.log("Request failed, checking sync queue...");
-          //           return null;
-          //         }
-          //       }
-          //     ]
-          //   },
-          //   method: 'PUT' // Background Sync is most commonly used for POSTing data
-          // },
+          {
+            urlPattern: ({ url }) => url.origin === 'https://ismr-engine-service.onrender.com',
+            handler: 'NetworkOnly',
+            method: 'PUT',
+            options: {
+              backgroundSync: {
+                name: 'ismr-sync-queue',
+                options: { maxRetentionTime: 24 * 60 }
+              },
+            }
+          },
           {
             urlPattern: /\.(?:png|jpg|svg)$/,
             handler: 'CacheFirst',

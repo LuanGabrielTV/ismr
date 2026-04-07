@@ -11,3 +11,4 @@ export class Preferences {
         this.delivery_frequency = String(delivery_frequency || null);
     }
 }
+
