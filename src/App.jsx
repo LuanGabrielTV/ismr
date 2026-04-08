@@ -6,24 +6,35 @@ import Register from "./pages/RegisterPage";
 import Login from "./pages/LoginPage";
 import User from "./pages/UserPage";
 import Install from './components/Install';
-import useOnlineStatus from './hooks/useOnlineStatus';
 import Offline from './components/Offline';
+import useOnlineStatus from './hooks/useOnlineStatus';
 import { flushManualQueue } from './utils/syncManager';
-import { App as AntdApp, ConfigProvider } from 'antd';
-import UserPage from './pages/UserPage';
+import { getAccessToken } from './utils/helpers';
+import { App as AntdApp, ConfigProvider, message } from 'antd';
+import { useNavigate, useLocation } from "react-router-dom";
 
-function App() {
-  const isOnline = useOnlineStatus();
+function MainContent({ isOnline }) {
+  const { message } = AntdApp.useApp();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const path = location.pathname;
+  const allowedUnauthenticatedPaths = ["/login", "/register"];
+
+  useEffect(() => {
+    const token = getAccessToken();
+    if (!token && !allowedUnauthenticatedPaths.includes(path)) {
+      navigate("/login");
+    }
+  }, [path, navigate]); 
+
   useEffect(() => {
     const handleOnline = () => {
-      // Delay slightly to ensure browser socket is fully stable
-      setTimeout(() => {
-        flushManualQueue();
-      }, 1500);
+      message.success("Você está online novamente!");
+      setTimeout(() => flushManualQueue(), 1500);
     };
 
     window.addEventListener('online', handleOnline);
-
+    
     if (navigator.onLine) {
       flushManualQueue();
     }
@@ -32,46 +43,38 @@ function App() {
   }, []);
 
   return (
+    <>
+      {!isOnline && <Offline />}
+      <div className="main">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/preferences" element={<Preference />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/user" element={<User />} />
+        </Routes>
+        <Install />
+      </div>
+    </>
+  );
+}
+
+function App() {
+  const isOnline = useOnlineStatus();
+
+  return (
     <ConfigProvider
       theme={{
         token: {
-          fontFamily: "'Wix Madefor Display', monospace",
+          fontFamily: "'Wix Madefor Display', sans-serif",
         },
       }}>
       <AntdApp>
         <BrowserRouter>
-          {true && (<div className="main">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/preferences" element={<Preference />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/user" element={<User />} />
-            </Routes>
-            <Install />
-          </div>)}
-
-          {!isOnline && (
-            <div style={{
-              position: 'fixed',
-              top: 0,
-              width: '100%',
-              backgroundColor: '#ff3333',
-              color: 'white',
-              padding: '10px 10px',
-              border: 'none',
-              fontFamily: 'Wix Madefor Display',
-              fontSize: '12px',
-              textAlign: 'center',
-              zIndex: 1000
-            }}>Você está offline!
-            </div>) && <Offline />}
-
+          <MainContent isOnline={isOnline} />
         </BrowserRouter>
       </AntdApp>
-
-    </ConfigProvider >
-
+    </ConfigProvider>
   );
 }
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Typography, Row, Col, Button, Form, Layout, Divider, Input, App, Space } from 'antd';
+import { Typography, Row, Col, Button, Form, Layout, Divider, Input, App, Space, Spin } from 'antd';
 import Topbar from '../components/Topbar';
 import { User } from "../entities/User";
 import config from '../config';
@@ -22,6 +22,7 @@ const fieldStyle = {
 function Login() {
 
     const [user, setUser] = useState(new User());
+    const [isLoading, setIsLoading] = useState(false);
     const { message } = App.useApp();
     const navigate = useNavigate();
 
@@ -33,12 +34,14 @@ function Login() {
         details.append('grant_type', 'password');
 
         try {
+            setIsLoading(true);
             const response = await fetch(config.uri + '/auth/login', {
                 method: 'POST',
                 body: details,
             });
 
             const data = await response.json();
+            setIsLoading(false);
             if (!response.ok) {
                 const errorMessage = typeof data.detail === 'string'
                     ? data.detail
@@ -67,6 +70,7 @@ function Login() {
         <Layout>
             <Topbar />
             <Content style={{ padding: '24px 24px', backgroundColor: 'white' }}>
+                
                 <Title level={1} style={{ textAlign: 'left', fontWeight: 'bold', letterSpacing: -1 }}>Bem vindo de volta{user.username != 'null' && (`, ${user.username}`)}</Title>
                 <Divider />
                 <Form
@@ -126,6 +130,7 @@ function Login() {
                         </Row>
                     </Space>
                 </Form>
+                <Spin style={{marginTop: 20}} spinning={isLoading} />
             </Content>
         </Layout>
     );

@@ -6,7 +6,7 @@ import { Preferences } from '../entities/Preferences';
 import { getAccessToken } from "../utils/helpers";
 import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
-const { Title, Text } = Typography;
+const { Title } = Typography;
 const { Content } = Layout;
 const { useBreakpoint } = Grid;
 
@@ -15,13 +15,10 @@ function Preference() {
     const [preferences, setPreferences] = useState(new Preferences());
     const [isLoading, setIsLoading] = useState(true);
     const [bearerToken, setBearerToken] = useState("");
-    const navigate = useNavigate();
 
     useEffect(() => {
         const token = getAccessToken();
-        if (!token) {
-            navigate("/login");
-        } else {
+        if (token) {
             setBearerToken(token);
             getPreferences(token);
         }

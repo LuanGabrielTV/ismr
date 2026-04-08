@@ -4,10 +4,10 @@ import Topbar from '../components/Topbar';
 import { User } from "../entities/User";
 import config from '../config';
 import { SignatureOutlined } from '@ant-design/icons';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { getAccessToken } from '../utils/helpers';
 import Footer from '../components/Footer';
-const { Title, Text } = Typography;
+const { Text } = Typography;
 const { Content } = Layout;
 
 const labelStyle = {
@@ -26,14 +26,11 @@ function UserPage() {
     const { message } = App.useApp();
     const [bearerToken, setBearerToken] = useState("");
     const [isLoading, setIsLoading] = useState(true);
-    const navigate = useNavigate();
     const [form] = Form.useForm();
 
     useEffect(() => {
         const token = getAccessToken();
-        if (!token) {
-            navigate("/login");
-        } else {
+        if (token) {
             setBearerToken(token);
             getUser(token);
         }
@@ -77,6 +74,7 @@ function UserPage() {
         };
 
         try {
+            setIsLoading(true);
             const response = await fetch(`${config.uri}/users/me`, {
                 headers: {
                     'Content-Type': 'application/json',
@@ -88,6 +86,7 @@ function UserPage() {
             });
 
             const data = await response.json();
+            setIsLoading(false);
             if (!response.ok) {
                 const errorMessage = typeof data.detail === 'string'
                     ? data.detail
@@ -106,7 +105,7 @@ function UserPage() {
             [fieldName]: value
         };
 
-        setUser(updated)
+        setUser(updated);
     };
 
     return (

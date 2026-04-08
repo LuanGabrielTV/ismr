@@ -82,7 +82,7 @@ define(['./workbox-c02d82e0'], (function (workbox) { 'use strict';
     "revision": "3ca0b8505b4bec776b69afdba2768812"
   }, {
     "url": "index.html",
-    "revision": "0.7utqgp79alo"
+    "revision": "0.bs55ud643mg"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {
@@ -100,14 +100,7 @@ define(['./workbox-c02d82e0'], (function (workbox) { 'use strict';
     }), new workbox.BackgroundSyncPlugin("ismr-sync-queue", {
       maxRetentionTime: 1440
     })]
-  }), 'POST');
-  workbox.registerRoute(({
-    url
-  }) => url.origin === "https://ismr-engine-service.onrender.com", new workbox.NetworkOnly({
-    plugins: [new workbox.BackgroundSyncPlugin("ismr-sync-queue", {
-      maxRetentionTime: 1440
-    })]
-  }), 'PUT');
+  }), 'GET');
   workbox.registerRoute(/\.(?:png|jpg|svg)$/, new workbox.CacheFirst({
     "cacheName": "ismr-assets",
     plugins: []

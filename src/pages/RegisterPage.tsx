@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { Typography, Row, Col, Button, Form, Layout, Divider, Input, App, Space } from 'antd';
+import { Typography, Row, Col, Button, Form, Layout, Divider, Input, App, Space, Spin } from 'antd';
 import Topbar from '../components/Topbar';
 import { User } from "../entities/User";
 import config from '../config';
 import { SignatureOutlined } from '@ant-design/icons';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 const { Title, Text } = Typography;
 const { Content } = Layout;
 
@@ -21,7 +21,9 @@ const fieldStyle = {
 function Register() {
 
     const [user, setUser] = useState(new User());
+    const [isLoading, setIsLoading] = useState(false);
     const { message } = App.useApp();
+    const navigate = useNavigate();
 
     const onFinish = async () => {
 
@@ -32,6 +34,7 @@ function Register() {
         };
 
         try {
+            setIsLoading(true);
             const response = await fetch(`${config.uri}/auth/register`, {
                 headers: {
                     'Content-Type': 'application/json',
@@ -42,12 +45,15 @@ function Register() {
             });
 
             const data = await response.json();
+            setIsLoading(false);
             if (!response.ok) {
                 const errorMessage = typeof data.detail === 'string'
                     ? data.detail
                     : (data.detail?.[0]?.msg || 'Ocorreu um erro inesperado');
 
                 message.error(errorMessage);
+            } else {
+                navigate("/login");
             }
         } catch (error) {
             console.error(error);
@@ -140,6 +146,7 @@ function Register() {
                         </Row>
                     </Space>
                 </Form>
+                <Spin style={{ marginTop: 20 }} spinning={isLoading} />
             </Content>
         </Layout>
     );
