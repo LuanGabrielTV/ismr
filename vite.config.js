@@ -21,7 +21,6 @@ export default defineConfig({
           {
             urlPattern: ({ url }) => url.origin === 'https://ismr-engine-service.onrender.com',
             handler: 'NetworkOnly',
-            method: 'POST',
             options: {
               cacheName: 'ismr-api-cache',
               expiration: {
@@ -34,17 +33,6 @@ export default defineConfig({
               backgroundSync: {
                 name: 'ismr-sync-queue',
                 options: { maxRetentionTime: 24 * 60 },
-              },
-            }
-          },
-          {
-            urlPattern: ({ url }) => url.origin === 'https://ismr-engine-service.onrender.com',
-            handler: 'NetworkOnly',
-            method: 'PUT',
-            options: {
-              backgroundSync: {
-                name: 'ismr-sync-queue',
-                options: { maxRetentionTime: 24 * 60 }
               },
             }
           },

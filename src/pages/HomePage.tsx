@@ -7,15 +7,11 @@ import Topbar from '../components/Topbar';
 const { Title } = Typography;
 const { Content } = Layout;
 import { useVibration } from '../hooks/useVibration';
+import Footer from '../components/Footer';
 
 const layoutStyle: React.CSSProperties = {
     minHeight: '100vh',
     backgroundColor: 'white'
-};
-
-const log = (msg: string) => {
-  const el = document.getElementById('debug');
-  if (el) el.innerText += msg + '\n';
 };
 
 const contentStyle: React.CSSProperties = {
@@ -28,13 +24,14 @@ const contentStyle: React.CSSProperties = {
     flex: 1
 };
 
+
 function Home() {
     const [isActive, setIsActive] = useState(false);
     const { vibrate } = useVibration();
-
+    
     return (
         <Layout style={layoutStyle}>
-            <Topbar/>
+            <Topbar />
             <Content style={contentStyle}>
                 <Flex vertical align="center" gap="large" justify="center" style={{ width: '100%' }}>
                     <div style={{ height: 30, display: 'flex', alignItems: 'center' }}>
@@ -63,10 +60,8 @@ function Home() {
                             if (!isActive) {
                                 vibrate(1000);
                                 if (permission === 'granted') {
-                                    // 1. Get the Service Worker registration
                                     const registration = await navigator.serviceWorker.ready;
 
-                                    // 2. Use the registration to show the notification
                                     registration.showNotification("Estamos ouvindo!", {
                                         body: "O aplicativo está ativo e processando áudio.",
                                         icon: "/logo192.png", // Path to your icon in the public folder
@@ -92,12 +87,10 @@ function Home() {
                     </Button>
                 </Flex>
             </Content>
+            <Footer/>
         </Layout>
     );
 }
 
 export default Home;
 
-function useEffect(arg0: () => () => void, arg1: never[]) {
-    throw new Error('Function not implemented.');
-}

@@ -25,22 +25,61 @@ const headerStyle: React.CSSProperties = {
 function Topbar() {
     const location = useLocation();
     const navigate = useNavigate();
+    const path = location.pathname;
+
+    const showSettings = path === "/";
+    const showBack = ["/preferences", "/user"].includes(path);
+    const showUser = ["/", "/preferences"].includes(path);
+    const showOnlyTitle = ["/login", "/register"].includes(path);
 
     return (
         <Header style={headerStyle}>
-            <Flex gap='small' style={{ height: '100%' }} justify='space-between' align='center'>
-                {location.pathname === "/" && (<Link to="/preferences" style={{ color: 'black' }}><SettingOutlined /></Link>)}
-                <div
-                    onClick={() => navigate(-1)}
-                    style={{ color: 'black', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-                >
-                    <LeftOutlined />
+            <div style={{ position: 'relative', height: '100%', display: 'flex', alignItems: 'center' }}>
+                
+                <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start' }}>
+                    {!showOnlyTitle && (
+                        <>
+                            {showSettings && (
+                                <Link to="/preferences" style={{ color: 'black' }}>
+                                    <SettingOutlined />
+                                </Link>
+                            )}
+                            {showBack && (
+                                <div onClick={() => navigate(-1)} style={{ cursor: 'pointer', display: 'flex' }}>
+                                    <LeftOutlined />
+                                </div>
+                            )}
+                        </>
+                    )}
                 </div>
-                <Title level={4} style={{ fontWeight: 100, fontFamily: 'Google Sans', margin: 0 }} >ismr</Title>
-                <Link to="/register" style={{ color: '#7879F1' }}><UserOutlined /></Link>
-            </Flex>
+
+                <div style={{
+                    position: 'absolute',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    textAlign: 'center',
+                    pointerEvents: 'none' 
+                }}>
+                    <Title level={4} style={{ 
+                        fontWeight: 100, 
+                        fontFamily: 'Google Sans', 
+                        margin: 0,
+                        pointerEvents: 'auto' 
+                    }}>
+                        ismr
+                    </Title>
+                </div>
+
+                <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
+                    {showUser && (
+                        <Link to="/user" style={{ color: '#7879F1' }}>
+                            <UserOutlined />
+                        </Link>
+                    )}
+                </div>
+            </div>
         </Header>
-    )
+    );
 }
 
 export default Topbar;
