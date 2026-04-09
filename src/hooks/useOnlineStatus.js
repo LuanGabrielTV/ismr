@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { flushManualQueue } from '../utils/syncManager';
 
 function useOnlineStatus() {
   // Manage current online status with state
@@ -9,6 +10,7 @@ function useOnlineStatus() {
     function handleOnline() {
       setIsOnline(true);
       console.log('Internet connection restored!'); 
+      flushManualQueue();
     }
     
     // Function to execute when switching to offline

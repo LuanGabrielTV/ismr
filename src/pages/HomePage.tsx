@@ -25,7 +25,7 @@ const contentStyle: React.CSSProperties = {
 };
 
 
-function Home() {
+function HomePage() {
     const [isActive, setIsActive] = useState(false);
     const { vibrate } = useVibration();
     
@@ -92,5 +92,5 @@ function Home() {
     );
 }
 
-export default Home;
+export default HomePage;
 

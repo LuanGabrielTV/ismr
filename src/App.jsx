@@ -6,8 +6,8 @@ import Register from "./pages/RegisterPage";
 import Login from "./pages/LoginPage";
 import User from "./pages/UserPage";
 import Install from './components/Install';
-import Offline from './components/Offline';
 import useOnlineStatus from './hooks/useOnlineStatus';
+import Offline from './components/Offline';
 import { flushManualQueue } from './utils/syncManager';
 import { getAccessToken } from './utils/helpers';
 import { App as AntdApp, ConfigProvider, message } from 'antd';
@@ -27,20 +27,19 @@ function MainContent({ isOnline }) {
     }
   }, [path, navigate]); 
 
-  useEffect(() => {
-    const handleOnline = () => {
-      message.success("Você está online novamente!");
-      setTimeout(() => flushManualQueue(), 1500);
-    };
+  // useEffect(() => {
+  //   const handleOnline = () => {
+  //     message.success("Você está online novamente!");
+  //     setTimeout(() => flushManualQueue(), 1500);
+  //   };
 
-    window.addEventListener('online', handleOnline);
-    
-    if (navigator.onLine) {
-      flushManualQueue();
-    }
+  //   window.addEventListener('online', handleOnline);
+  //   if (navigator.onLine) {
+  //     flushManualQueue();
+  //   }
 
-    return () => window.removeEventListener('online', handleOnline);
-  }, []);
+  //   return () => window.removeEventListener('online', handleOnline);
+  // }, []);
 
   return (
     <>

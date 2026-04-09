@@ -7,7 +7,12 @@ export default defineConfig({
     fs: {
       allow: ['..']
     },
-    cors: true
+    cors: true,
+    allowedHosts: [
+      'internetted-rickey-unvibrantly.ngrok-free.dev',
+      '.ngrok-free.dev',
+      '.ngrok-free.app'
+    ],
   },
   plugins: [
     react(),
@@ -18,24 +23,36 @@ export default defineConfig({
       registerType: 'autoUpdate',
       workbox: {
         runtimeCaching: [
+          // 1. Rule for POST requests
           {
-            urlPattern: ({ url }) => url.origin === 'https://ismr-engine-service.onrender.com',
-            handler: 'NetworkOnly',
+            // Using a Regex ensures we catch all endpoints (e.g., /users, /data)
+            urlPattern: /^https:\/\/ismr-engine-service\.onrender\.com\/.*/,
+            handler: 'NetworkOnly', // Must be NetworkOnly for Background Sync
+            method: 'POST',         // Explicitly target POST
             options: {
-              cacheName: 'ismr-api-cache',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 24 * 60 * 60,
-              },
-              cacheableResponse: {
-                statuses: [0, 200],
-              },
               backgroundSync: {
-                name: 'ismr-sync-queue',
-                options: { maxRetentionTime: 24 * 60 },
+                name: 'ismr-post-sync-queue', // Name of the IndexedDB queue
+                options: {
+                  maxRetentionTime: 24 * 60 // Keep in queue for up to 24 hours
+                },
               },
             }
           },
+          // 2. Rule for PUT requests
+          {
+            urlPattern: /^https:\/\/ismr-engine-service\.onrender\.com\/.*/,
+            handler: 'NetworkOnly',
+            method: 'PUT',          // Explicitly target PUT
+            options: {
+              backgroundSync: {
+                name: 'ismr-put-sync-queue', // Shares the same queue as POST
+                options: {
+                  maxRetentionTime: 24 * 60
+                },
+              },
+            }
+          },
+          // 3. Your original static assets rule
           {
             urlPattern: /\.(?:png|jpg|svg)$/,
             handler: 'CacheFirst',
@@ -45,7 +62,7 @@ export default defineConfig({
       },
       devOptions: {
         enabled: true,
-        type: 'classic',
+        type: 'module', // Changed from 'classic' to 'module' for better Vite compatibility
         navigateFallback: 'index.html',
       },
       manifest: {
@@ -79,4 +96,4 @@ export default defineConfig({
       }
     })
   ],
-})  
+})

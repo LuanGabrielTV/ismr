@@ -67,7 +67,7 @@ if (!self.define) {
     });
   };
 }
-define(['./workbox-c02d82e0'], (function (workbox) { 'use strict';
+define(['./workbox-c5427bb8'], (function (workbox) { 'use strict';
 
   self.skipWaiting();
   workbox.clientsClaim();
@@ -82,25 +82,22 @@ define(['./workbox-c02d82e0'], (function (workbox) { 'use strict';
     "revision": "3ca0b8505b4bec776b69afdba2768812"
   }, {
     "url": "index.html",
-    "revision": "0.bs55ud643mg"
+    "revision": "0.emrm5fjec78"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {
     allowlist: [/^\/$/]
   }));
-  workbox.registerRoute(({
-    url
-  }) => url.origin === "https://ismr-engine-service.onrender.com", new workbox.NetworkOnly({
-    "cacheName": "ismr-api-cache",
-    plugins: [new workbox.ExpirationPlugin({
-      maxEntries: 10,
-      maxAgeSeconds: 86400
-    }), new workbox.CacheableResponsePlugin({
-      statuses: [0, 200]
-    }), new workbox.BackgroundSyncPlugin("ismr-sync-queue", {
+  workbox.registerRoute(/^https:\/\/ismr-engine-service\.onrender\.com\/.*/, new workbox.NetworkOnly({
+    plugins: [new workbox.BackgroundSyncPlugin("ismr-post-sync-queue", {
       maxRetentionTime: 1440
     })]
-  }), 'GET');
+  }), 'POST');
+  workbox.registerRoute(/^https:\/\/ismr-engine-service\.onrender\.com\/.*/, new workbox.NetworkOnly({
+    plugins: [new workbox.BackgroundSyncPlugin("ismr-put-sync-queue", {
+      maxRetentionTime: 1440
+    })]
+  }), 'PUT');
   workbox.registerRoute(/\.(?:png|jpg|svg)$/, new workbox.CacheFirst({
     "cacheName": "ismr-assets",
     plugins: []
